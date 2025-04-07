@@ -78,9 +78,9 @@
                 <div class="list-group">
                     @foreach($criticalStockAlerts as $alert)
                     <div class="list-group-item">
-                        <h6 class="mb-1">{{ $alert->item->name }}</h6>
-                        <p class="mb-1">Mevcut Stok: {{ $alert->item->current_stock }}</p>
-                        <small class="text-danger">Minimum Stok: {{ $alert->item->minimum_stock }}</small>
+                        <h6 class="mb-1">{{ $alert->name }}</h6>
+                        <p class="mb-1">Mevcut Stok: {{ $alert->current_stock }}</p>
+                        <small class="text-danger">Minimum Stok: {{ $alert->minimum_stock }}</small>
                     </div>
                     @endforeach
                 </div>

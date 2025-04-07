@@ -10,11 +10,10 @@ return new class extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('item_id')->constrained()->onDelete('cascade');
             $table->string('title');
             $table->text('message');
+            $table->string('type')->default('stock_alert');
             $table->boolean('is_read')->default(false);
-            $table->timestamp('notification_date');
             $table->timestamps();
         });
     }

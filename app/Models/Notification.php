@@ -2,22 +2,23 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Notification extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'item_id',
         'title',
         'message',
-        'is_read',
-        'notification_date'
+        'type',
+        'is_read'
     ];
 
     protected $casts = [
-        'is_read' => 'boolean',
-        'notification_date' => 'datetime'
+        'is_read' => 'boolean'
     ];
 
     public function item(): BelongsTo

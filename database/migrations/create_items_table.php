@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
+            $table->string('unit')->default('adet');
             $table->integer('current_stock')->default(0);
             $table->integer('minimum_stock')->default(0);
             $table->integer('monthly_consumption')->default(0);
