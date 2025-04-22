@@ -22,16 +22,27 @@ class ItemController extends Controller
 
     public function store(Request $request)
     {
+        \Log::info('Gelen request:', $request->all());
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'unit' => 'required|string|in:adet,kg,lt,paket',
             'current_stock' => 'required|integer|min:0',
             'minimum_stock' => 'required|integer|min:0',
-            'monthly_consumption' => 'required|integer|min:0'
+            'stock_tracking_type' => 'required|string|in:manuel,otomatik',
+            'weekly_consumption' => 'required_if:stock_tracking_type,otomatik|integer|min:0'
         ]);
 
-        Item::create($validated);
+        \Log::info('Validasyon sonrası:', $validated);
+
+        // Manuel stok takibi seçildiğinde haftalık tüketimi 0 yap
+        if ($validated['stock_tracking_type'] == 'manuel') {
+            $validated['weekly_consumption'] = 0;
+        }
+
+        $item = Item::create($validated);
+        \Log::info('Oluşturulan kayıt:', $item->toArray());
 
         return redirect()->route('items.index')
             ->with('success', 'Stok kalemi başarıyla oluşturuldu.');
@@ -118,8 +129,14 @@ class ItemController extends Controller
             'unit' => 'required|string|in:adet,kg,lt,paket',
             'current_stock' => 'required|integer|min:0',
             'minimum_stock' => 'required|integer|min:0',
-            'monthly_consumption' => 'required|integer|min:0'
+            'stock_tracking_type' => 'required|string|in:manuel,otomatik',
+            'weekly_consumption' => 'required_if:stock_tracking_type,otomatik|integer|min:0'
         ]);
+
+        // Manuel stok takibi seçildiğinde haftalık tüketimi 0 yap
+        if ($validated['stock_tracking_type'] == 'manuel') {
+            $validated['weekly_consumption'] = 0;
+        }
 
         $item->update($validated);
 

@@ -25,6 +25,11 @@
                         <a class="nav-link" href="{{ route('stock-movements.index') }}">Stok Hareketleri</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('charts') ? 'active' : '' }}" href="{{ route('charts') }}">
+                            <i class="fas fa-chart-bar me-2"></i>Grafikler
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('chatbot.index') ? 'active' : '' }}" href="{{ route('chatbot.index') }}">
                             <i class="fas fa-robot me-2"></i>Chatbot
                         </a>

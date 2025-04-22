@@ -15,7 +15,8 @@ return new class extends Migration
             $table->string('unit')->default('adet');
             $table->integer('current_stock')->default(0);
             $table->integer('minimum_stock')->default(0);
-            $table->integer('monthly_consumption')->default(0);
+            $table->string('stock_tracking_type')->default('manuel');
+            $table->integer('weekly_consumption')->default(0);
             $table->timestamps();
         });
     }

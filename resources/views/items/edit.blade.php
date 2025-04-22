@@ -68,10 +68,21 @@
                             </div>
 
                             <div class="col-md-3 mb-3">
-                                <label for="monthly_consumption" class="form-label">Aylık Tüketim</label>
-                                <input type="number" name="monthly_consumption" id="monthly_consumption" value="{{ old('monthly_consumption', $item->monthly_consumption) }}" 
-                                    class="form-control @error('monthly_consumption') is-invalid @enderror" required min="0">
-                                @error('monthly_consumption')
+                                <label for="stock_tracking_type" class="form-label">Stok Takip Tipi</label>
+                                <select name="stock_tracking_type" id="stock_tracking_type" class="form-select @error('stock_tracking_type') is-invalid @enderror" required>
+                                    <option value="manuel" {{ old('stock_tracking_type', $item->stock_tracking_type) == 'manuel' ? 'selected' : '' }}>Manuel</option>
+                                    <option value="otomatik" {{ old('stock_tracking_type', $item->stock_tracking_type) == 'otomatik' ? 'selected' : '' }}>Otomatik</option>
+                                </select>
+                                @error('stock_tracking_type')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-3 mb-3" id="weekly_consumption_container" style="display: {{ old('stock_tracking_type', $item->stock_tracking_type) == 'otomatik' ? 'block' : 'none' }};">
+                                <label for="weekly_consumption" class="form-label">Haftalık Tüketim</label>
+                                <input type="number" name="weekly_consumption" id="weekly_consumption" value="{{ old('weekly_consumption', $item->weekly_consumption) }}" 
+                                    class="form-control @error('weekly_consumption') is-invalid @enderror" min="0">
+                                @error('weekly_consumption')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -91,4 +102,26 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const stockTrackingType = document.getElementById('stock_tracking_type');
+        const weeklyConsumptionContainer = document.getElementById('weekly_consumption_container');
+
+        function toggleWeeklyConsumption() {
+            if (stockTrackingType.value === 'otomatik') {
+                weeklyConsumptionContainer.style.display = 'block';
+                document.getElementById('weekly_consumption').setAttribute('required', 'required');
+            } else {
+                weeklyConsumptionContainer.style.display = 'none';
+                document.getElementById('weekly_consumption').removeAttribute('required');
+            }
+        }
+
+        stockTrackingType.addEventListener('change', toggleWeeklyConsumption);
+        toggleWeeklyConsumption(); // Sayfa yüklendiğinde de kontrol et
+    });
+</script>
+@endpush
 @endsection 

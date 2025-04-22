@@ -27,7 +27,7 @@
                                     <th>Birim</th>
                                     <th>Mevcut Stok</th>
                                     <th>Minimum Stok</th>
-                                    <th>Aylık Tüketim</th>
+                                    <th>Haftalık Tüketim</th>
                                     <th>Durum</th>
                                     <th>İşlemler</th>
                                 </tr>
@@ -39,7 +39,14 @@
                                         <td>{{ $item->unit }}</td>
                                         <td>{{ $item->current_stock }} {{ $item->unit }}</td>
                                         <td>{{ $item->minimum_stock }} {{ $item->unit }}</td>
-                                        <td>{{ $item->monthly_consumption }} {{ $item->unit }}</td>
+                                        <td>
+                                            @if($item->stock_tracking_type == 'otomatik')
+                                                {{ $item->weekly_consumption }} {{ $item->unit }}
+                                            @else
+                                                -
+                                            @endif
+                                            <!-- Debug: {{ $item->stock_tracking_type }} - {{ $item->weekly_consumption }} -->
+                                        </td>
                                         <td>
                                             @if($item->current_stock <= $item->minimum_stock)
                                                 <span class="badge bg-danger">Kritik Seviye</span>

@@ -54,8 +54,14 @@
                         <div class="col-md-4 mb-3">
                             <div class="card bg-light">
                                 <div class="card-body text-center">
-                                    <h6 class="text-muted mb-1">Aylık Tüketim</h6>
-                                    <p class="h4 mb-0">{{ $item->monthly_consumption }} {{ $item->unit }}</p>
+                                    <h6 class="text-muted mb-1">Haftalık Tüketim</h6>
+                                    <p class="h4 mb-0">
+                                        @if($item->stock_tracking_type == 'otomatik')
+                                            {{ $item->weekly_consumption }} {{ $item->unit }}
+                                        @else
+                                            -
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
                         </div>

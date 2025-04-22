@@ -8,6 +8,9 @@ use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/charts', [DashboardController::class, 'charts'])->name('charts');
+Route::get('/api/items/{item}/movements', [DashboardController::class, 'getItemMovements'])->name('api.items.movements');
 
 Route::resource('items', ItemController::class);
 Route::resource('stock-movements', StockMovementController::class);

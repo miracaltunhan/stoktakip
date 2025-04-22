@@ -13,7 +13,8 @@ class Item extends Model
         'unit',
         'current_stock',
         'minimum_stock',
-        'monthly_consumption'
+        'stock_tracking_type',
+        'weekly_consumption'
     ];
 
     public function stockMovements(): HasMany
