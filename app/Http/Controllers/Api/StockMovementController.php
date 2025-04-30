@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\Models\StockMovement;
 use Illuminate\Http\Request;
@@ -67,4 +67,4 @@ class StockMovementController extends Controller
         return redirect()->route('stock-movements.index')
             ->with('success', 'Stok hareketi başarıyla silindi.');
     }
-} 
+}

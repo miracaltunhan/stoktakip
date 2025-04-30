@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Models\ChatMessage;
+use Illuminate\Http\Request;
 
 class ChatbotController extends Controller
 {
@@ -41,19 +41,19 @@ class ChatbotController extends Controller
     {
         // Basit bir yanıt mantığı
         $message = strtolower($message);
-        
+
         if (str_contains($message, 'merhaba') || str_contains($message, 'selam')) {
             return 'Merhaba! Size nasıl yardımcı olabilirim?';
         }
-        
+
         if (str_contains($message, 'stok') && str_contains($message, 'durum')) {
             return 'Stok durumunu kontrol etmek için ürünler sayfasını ziyaret edebilirsiniz.';
         }
-        
+
         if (str_contains($message, 'kritik') && str_contains($message, 'stok')) {
             return 'Kritik stok seviyesindeki ürünleri bildirimler sayfasından görebilirsiniz.';
         }
-        
+
         if (str_contains($message, 'yardım')) {
             return 'Size yardımcı olabileceğim konular:
 - Stok durumu sorgulama
@@ -61,7 +61,7 @@ class ChatbotController extends Controller
 - Ürün ekleme/düzenleme
 - Stok hareketleri görüntüleme';
         }
-        
+
         return 'Üzgünüm, bu konuda size yardımcı olamadım. Lütfen sorunuzu daha açık bir şekilde belirtin veya "yardım" yazarak size yardımcı olabileceğim konuları görüntüleyin.';
     }
-} 
+}

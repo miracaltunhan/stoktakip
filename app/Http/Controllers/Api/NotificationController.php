@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\Models\Notification;
 use Illuminate\Http\Request;
@@ -81,4 +81,4 @@ class NotificationController extends Controller
         return redirect()->route('notifications.index')
             ->with('success', 'Tüm bildirimler okundu olarak işaretlendi.');
     }
-} 
+}

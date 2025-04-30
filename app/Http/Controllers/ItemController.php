@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Api\Controller;
 use App\Models\Item;
 use App\Models\Notification;
+use App\Models\StockMovement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -43,6 +45,16 @@ class ItemController extends Controller
 
         $item = Item::create($validated);
         \Log::info('Oluşturulan kayıt:', $item->toArray());
+
+        // İlk stok hareketini kaydet
+        if ($validated['current_stock'] > 0) {
+            StockMovement::create([
+                'item_id' => $item->id,
+                'type' => 'in',
+                'quantity' => $validated['current_stock'],
+                'description' => 'İlk stok girişi'
+            ]);
+        }
 
         return redirect()->route('items.index')
             ->with('success', 'Stok kalemi başarıyla oluşturuldu.');
@@ -154,4 +166,44 @@ class ItemController extends Controller
         return redirect()->route('items.index')
             ->with('success', 'Stok kalemi başarıyla silindi.');
     }
-} 
+
+    public function addStock(Request $request, Item $item)
+    {
+        $validated = $request->validate([
+            'quantity' => 'required|numeric|min:0',
+            'description' => 'nullable|string|max:255'
+        ]);
+
+        $item->current_stock += $validated['quantity'];
+        $item->save();
+
+        StockMovement::create([
+            'item_id' => $item->id,
+            'type' => 'in',
+            'quantity' => $validated['quantity'],
+            'description' => $validated['description'] ?? 'Stok girişi'
+        ]);
+
+        return redirect()->back()->with('success', 'Stok başarıyla eklendi.');
+    }
+
+    public function removeStock(Request $request, Item $item)
+    {
+        $validated = $request->validate([
+            'quantity' => 'required|numeric|min:0|max:' . $item->current_stock,
+            'description' => 'nullable|string|max:255'
+        ]);
+
+        $item->current_stock -= $validated['quantity'];
+        $item->save();
+
+        StockMovement::create([
+            'item_id' => $item->id,
+            'type' => 'out',
+            'quantity' => $validated['quantity'],
+            'description' => $validated['description'] ?? 'Stok çıkışı'
+        ]);
+
+        return redirect()->back()->with('success', 'Stok başarıyla çıkarıldı.');
+    }
+}
