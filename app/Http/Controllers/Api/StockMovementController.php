@@ -2,67 +2,63 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\StockMovement;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class StockMovementController extends Controller
 {
     public function index()
     {
-        $movements = StockMovement::with('item')->latest()->paginate(10);
+        $movements = StockMovement::with('item')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
         return view('stock-movements.index', compact('movements'));
     }
 
-    public function create()
+    public function show($id)
     {
-        return view('stock-movements.create');
+        $movement = StockMovement::with('item')->findOrFail($id);
+        return view('stock-movements.show', compact('movement'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'item_id' => 'required|exists:items,id',
-            'quantity' => 'required|numeric',
+            'quantity' => 'required|numeric|min:0',
             'type' => 'required|in:in,out',
-            'date' => 'required|date',
-            'notes' => 'nullable|string|max:255',
+            'description' => 'required|string'
         ]);
 
-        StockMovement::create($validated);
+        $movement = StockMovement::create($validated);
 
         return redirect()->route('stock-movements.index')
-            ->with('success', 'Stok hareketi başarıyla oluşturuldu.');
+            ->with('success', 'Stok hareketi başarıyla kaydedildi.');
     }
 
-    public function show(StockMovement $stockMovement)
+    public function update(Request $request, $id)
     {
-        return view('stock-movements.show', compact('stockMovement'));
-    }
+        $movement = StockMovement::findOrFail($id);
 
-    public function edit(StockMovement $stockMovement)
-    {
-        return view('stock-movements.edit', compact('stockMovement'));
-    }
-
-    public function update(Request $request, StockMovement $stockMovement)
-    {
         $validated = $request->validate([
-            'item_id' => 'required|exists:items,id',
-            'quantity' => 'required|numeric',
-            'type' => 'required|in:in,out',
-            'date' => 'required|date',
-            'notes' => 'nullable|string|max:255',
+            'quantity' => 'numeric|min:0',
+            'type' => 'in:in,out',
+            'description' => 'string'
         ]);
 
-        $stockMovement->update($validated);
+        $movement->update($validated);
 
         return redirect()->route('stock-movements.index')
             ->with('success', 'Stok hareketi başarıyla güncellendi.');
     }
 
-    public function destroy(StockMovement $stockMovement)
+    public function destroy($id)
     {
-        $stockMovement->delete();
+        $movement = StockMovement::findOrFail($id);
+        $movement->delete();
 
         return redirect()->route('stock-movements.index')
             ->with('success', 'Stok hareketi başarıyla silindi.');

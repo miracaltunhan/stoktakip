@@ -1,37 +1,61 @@
 <?php
 
-use App\Http\Controllers\Api\ChatbotController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ItemController;
+use App\Http\Controllers\Api\StockMovementController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\NotificationController;
-use App\Http\Controllers\Api\StockMovementController;
-use App\Http\Controllers\Api\ItemController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ChatbotController;
 
-// Ana sayfa ve dashboard rotaları
-Route::get('/', [DashboardController::class, 'index'])->name('home');
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-Route::get('/charts', [DashboardController::class, 'charts'])->name('charts');
-Route::get('/items/{item}/movements', [DashboardController::class, 'getItemMovements'])->name('api.items.movements');
+// API rotalarını 'api' prefix'i ile gruplama
+Route::prefix('api')->middleware('api')->group(function () {
 
-// Resource rotaları
-Route::resource('items', ItemController::class);
-Route::resource('stock-movements', StockMovementController::class);
-Route::resource('notifications', NotificationController::class);
+    // Test endpoint'i
+    Route::get('test', function () {
+        return response()->json([
+            'message' => 'API çalışıyor'
+        ]);
+    });
 
-// Bildirim işlemleri
-Route::post('notifications/{notification}/mark-as-read', [NotificationController::class, 'markAsRead'])
-    ->name('notifications.mark-as-read');
-Route::post('notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])
-    ->name('notifications.mark-all-read');
+    // Dashboard
+    Route::prefix('dashboard')->group(function () {
+        // Route::get('/', [DashboardController::class, 'index']);
+        // Route::get('/charts', [DashboardController::class, 'charts']);
+        // Route::get('/items/{itemId}/movements', [DashboardController::class, 'getItemMovements']);
+        // Route::get('/items/{itemId}/report', [DashboardController::class, 'downloadReport']);
+    });
 
-// Chatbot rotaları
-Route::get('/chatbot', [ChatbotController::class, 'index'])->name('chatbot.index');
-Route::post('/chatbot/send', [ChatbotController::class, 'send'])->name('chatbot.send');
+    // Ürün işlemleri
+    Route::prefix('items')->group(function () {
+        // Route::get('/', [ItemController::class, 'index']);
+        // Route::get('/{id}', [ItemController::class, 'show']);
+        // Route::post('/', [ItemController::class, 'store']);
+        // Route::put('/{id}', [ItemController::class, 'update']);
+        // Route::delete('/{id}', [ItemController::class, 'destroy']);
+        // Route::post('/{id}/add-stock', [ItemController::class, 'addStock']);
+        // Route::post('/{id}/consume', [ItemController::class, 'consume']);
+        // Route::get('/{id}/stock-movements', [ItemController::class, 'getStockMovements']);
+    });
 
-// Stok işlemleri
-Route::post('items/{item}/consume', [ItemController::class, 'consume'])->name('items.consume');
-Route::post('items/{item}/add-stock', [ItemController::class, 'addStock'])->name('items.add-stock');
+    // Stok hareketleri
+    Route::prefix('stock-movements')->group(function () {
+        // Route::get('/', [StockMovementController::class, 'index']);
+        // Route::get('/{id}', [StockMovementController::class, 'show']);
+        // Route::post('/', [StockMovementController::class, 'store']);
+        // Route::put('/{id}', [StockMovementController::class, 'update']);
+        // Route::delete('/{id}', [StockMovementController::class, 'destroy']);
+    });
 
-// Dashboard ek özellikleri
-Route::get('/dashboard/charts', [DashboardController::class, 'charts'])->name('dashboard.charts');
-Route::get('/dashboard/download-report/{item}', [DashboardController::class, 'downloadReport'])->name('dashboard.download-report');
+    // Bildirimler
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index']);
+        Route::post('/{id}/mark-as-read', [NotificationController::class, 'markAsRead']);
+        Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+    });
+
+    // Chatbot
+    Route::prefix('chatbot')->group(function () {
+        Route::get('/', [ChatbotController::class, 'index']);
+        Route::post('/send', [ChatbotController::class, 'send']);
+    });
+});

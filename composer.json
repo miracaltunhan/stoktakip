@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "laravel/framework": "^12.0",
+        "laravel/sanctum": "^4.1",
         "laravel/tinker": "^2.10.1",
         "tecnickcom/tcpdf": "^6.9"
     },
@@ -26,7 +27,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "exclude-from-classmap": [
+            "vendor/laravel/pint/app"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

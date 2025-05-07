@@ -4,18 +4,18 @@ use App\Http\Controllers\Api\ChatbotController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\StockMovementController;
-use App\Http\Controllers\ItemController;
+use App\Http\Controllers\Api\ItemController;
 use Illuminate\Support\Facades\Route;
 
 // Ana sayfa ve dashboard rotaları
-Route::get('/', [DashboardController::class, 'index'])->name('home');
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-Route::get('/charts', [DashboardController::class, 'charts'])->name('charts');
-Route::get('/api/items/{item}/movements', [DashboardController::class, 'getItemMovements'])->name('api.items.movements');
+Route::get('/', [App\Http\Controllers\Api\DashboardController::class, 'index'])->name('home');
+Route::get('/dashboard', [App\Http\Controllers\Api\DashboardController::class, 'index'])->name('dashboard');
+Route::get('/charts', [App\Http\Controllers\Api\DashboardController::class, 'charts'])->name('charts');
+Route::get('/api/items/{item}/movements', [App\Http\Controllers\Api\DashboardController::class, 'getItemMovements'])->name('api.items.movements');
 
 // Resource rotaları
-Route::resource('items', ItemController::class);
-Route::resource('stock-movements', StockMovementController::class);
+Route::resource('items', App\Http\Controllers\ItemController::class);
+Route::resource('stock-movements', App\Http\Controllers\Api\StockMovementController::class);
 Route::resource('notifications', NotificationController::class);
 
 // Bildirim işlemleri
@@ -34,4 +34,4 @@ Route::post('items/{item}/add-stock', [ItemController::class, 'addStock'])->name
 
 // Dashboard ek özellikleri
 Route::get('/dashboard/charts', [DashboardController::class, 'charts'])->name('dashboard.charts');
-Route::get('/dashboard/download-report/{item}', [DashboardController::class, 'downloadReport'])->name('dashboard.download-report');
+Route::get('/dashboard/download-report/{itemId}', [DashboardController::class, 'downloadReport'])->name('dashboard.download-report');

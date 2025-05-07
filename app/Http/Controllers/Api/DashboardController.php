@@ -8,6 +8,9 @@ use App\Models\StockMovement;
 use App\Services\StockReportService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -20,6 +23,7 @@ class DashboardController extends Controller
 
     public function index()
     {
+        /*
         $totalItems = Item::count();
         $criticalItems = Item::whereRaw('current_stock <= minimum_stock')->count();
         $totalValue = Item::sum('current_stock');
@@ -30,6 +34,29 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        $criticalStockAlerts = Item::whereRaw('current_stock <= minimum_stock')
+            ->orderBy('current_stock', 'asc')
+            ->take(5)
+            ->get();
+
+        return response()->json([
+            'total_items' => $totalItems,
+            'critical_items' => $criticalItems,
+            'total_value' => $totalValue,
+            'active_notifications' => $activeNotifications,
+            'recent_movements' => $recentMovements,
+            'critical_stock_alerts' => $criticalStockAlerts
+        ]);
+        */
+
+        $totalItems = Item::count();
+        $criticalItems = Item::whereRaw('current_stock <= minimum_stock')->count();
+        $totalValue = Item::sum('current_stock');
+        $activeNotifications = Notification::where('is_read', false)->count();
+        $recentMovements = StockMovement::with('item')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
         $criticalStockAlerts = Item::whereRaw('current_stock <= minimum_stock')
             ->orderBy('current_stock', 'asc')
             ->take(5)
@@ -47,6 +74,27 @@ class DashboardController extends Controller
 
     public function charts()
     {
+        /*
+        $totalItems = Item::count();
+        $criticalItems = Item::whereRaw('current_stock <= minimum_stock')->count();
+
+        // Stok takip türü dağılımı
+        $stockTrackingDistribution = [
+            'otomatik' => Item::where('stock_tracking_type', 'otomatik')->count(),
+            'manuel' => Item::where('stock_tracking_type', 'manuel')->count()
+        ];
+
+        // Aktif ürünler
+        $activeItems = Item::select('id', 'name')->get();
+
+        return response()->json([
+            'total_items' => $totalItems,
+            'critical_items' => $criticalItems,
+            'stock_tracking_distribution' => $stockTrackingDistribution,
+            'active_items' => $activeItems
+        ]);
+        */
+
         $totalItems = Item::count();
         $criticalItems = Item::whereRaw('current_stock <= minimum_stock')->count();
 
@@ -67,7 +115,7 @@ class DashboardController extends Controller
         ));
     }
 
-    public function getItemMovements(Request $request, $itemId)
+    public function getItemMovements(Request $request, $itemId): JsonResponse
     {
         try {
             $item = Item::findOrFail($itemId);
@@ -201,12 +249,14 @@ class DashboardController extends Controller
             return response()->json([
                 'item' => [
                     'name' => $item->name,
-                    'unit' => $item->unit
+                    'unit' => $item->unit,
+                    'stock_tracking_type' => $item->stock_tracking_type,
+                    'weekly_consumption' => $item->weekly_consumption
                 ],
                 'movements' => $movements
             ]);
         } catch (\Exception $e) {
-            \Log::error('Stok hareketleri hatası: ' . $e->getMessage());
+            Log::error('Stok hareketleri hatası: ' . $e->getMessage());
             return response()->json([
                 'error' => 'Stok hareketleri alınırken bir hata oluştu'
             ], 500);
@@ -218,20 +268,23 @@ class DashboardController extends Controller
         try {
             $item = Item::findOrFail($itemId);
             $stockData = $this->getItemMovementsData($item);
+            $pdfContent = $this->stockReportService->generateReport($item, $stockData);
 
-            $pdf = $this->stockReportService->generateReport($item, $stockData);
+            if (empty($pdfContent)) {
+                throw new \Exception('PDF içeriği boş oluşturuldu');
+            }
 
-            return response($pdf)
+            return response($pdfContent)
                 ->header('Content-Type', 'application/pdf')
                 ->header('Content-Disposition', 'attachment; filename="' . $item->name . '_stok_raporu.pdf"')
-                ->header('Content-Length', strlen($pdf));
+                ->header('Content-Length', strlen($pdfContent));
         } catch (\Exception $e) {
             \Log::error('PDF oluşturma hatası: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Rapor oluşturulurken bir hata oluştu: ' . $e->getMessage());
         }
     }
 
-    private function getItemMovementsData($item)
+    private function getItemMovementsData($item): array
     {
         $movements = [
             'dates' => [],
@@ -362,7 +415,9 @@ class DashboardController extends Controller
         return [
             'item' => [
                 'name' => $item->name,
-                'unit' => $item->unit
+                'unit' => $item->unit,
+                'stock_tracking_type' => $item->stock_tracking_type,
+                'weekly_consumption' => $item->weekly_consumption
             ],
             'movements' => $movements
         ];

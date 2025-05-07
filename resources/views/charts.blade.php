@@ -146,6 +146,11 @@
             e.preventDefault();
             const itemId = this.dataset.itemId;
             
+            // Önceki active sınıfını kaldır
+            document.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('active'));
+            // Tıklanan öğeye active sınıfını ekle
+            this.classList.add('active');
+            
             // Dropdown buton metnini güncelle
             document.getElementById('itemDropdown').textContent = this.textContent;
             
@@ -270,12 +275,44 @@
         });
     }
 
+    // PDF indirme butonu
     $('#downloadPdf').click(function() {
-        const selectedItem = document.querySelector('.dropdown-item.active');
-        if (selectedItem) {
-            const itemId = selectedItem.dataset.itemId;
-            window.location.href = '/dashboard/download-report/' + itemId;
+        const selectedItem = $('.dropdown-item.active');
+        if (selectedItem.length === 0) {
+            alert('Lütfen önce bir ürün seçin');
+            return;
         }
+
+        const itemId = selectedItem.data('item-id');
+        
+        // İndirme işlemini başlat
+        fetch(`/dashboard/download-report/${itemId}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/pdf',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => Promise.reject(err));
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${selectedItem.text().trim()}_stok_raporu.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        })
+        .catch(error => {
+            console.error('PDF indirme hatası:', error);
+            alert('PDF indirilirken bir hata oluştu: ' + (error.error || 'Bilinmeyen hata'));
+        });
     });
 </script>
 @endpush
